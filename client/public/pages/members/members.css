@@ -1,0 +1,21 @@
+.card {
+    cursor: pointer;
+    border-radius: 5%;
+    border: unset;
+    margin-bottom: 2rem;
+    transition: transform .2s;
+    z-index: 1;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+h1 {
+    display: inline-block
+}
+
+.refresh-btn {
+    display: inline-block;
+    margin-left: 5px;
+}
