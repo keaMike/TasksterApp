@@ -40,4 +40,4 @@ module.exports = {
     setupOptions,
     setupPagesAndStaticFiles,
     setupRoutes
-}
+};

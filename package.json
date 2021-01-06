@@ -1,14 +1,14 @@
 {
-  "name": "tasksterapi",
+  "name": "tasksterapp",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
-    "startDev": "SET NODE_ENV=development & nodemon app.js",
-    "startProd": "SET PORT=80 & SET NODE_ENV=production & nodemon app.js",
+    "startDev": "NODE_ENV=development & nodemon app.js",
+    "startProd": "PORT=80 & NODE_ENV=production & nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Mike Hagen Eggertsen",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",

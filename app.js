@@ -9,7 +9,7 @@ const server = require('http').createServer(app);
 require('./backend/chat/ioServer').instantiateSocketServer(server);
 
 const PORT = process.env.PORT;
-const ENVIRONMENT = process.env.NODE_ENV.trim();
+const ENVIRONMENT = process.env.NODE_ENV;
 
 if (ENVIRONMENT == 'development') {
     server.listen(PORT, () => {

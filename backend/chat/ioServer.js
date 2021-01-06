@@ -1,11 +1,6 @@
 const instantiateSocketServer = (server) => {
     console.log("Instantiating socket io server...");
-    const io = require("socket.io")(server, {
-        cors: {
-            origin: "http://mikeeggertsen.com",
-            methods: ["GET", "POST"],
-        }
-    });
+    const io = require("socket.io")(server);
 
     io.on("connection", (socket) => {
         socket.on("joined", (res) => {
