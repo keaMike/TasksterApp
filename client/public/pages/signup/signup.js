@@ -13,10 +13,10 @@ const signUp = () => {
     const teamToken = $("#teamtoken").val();
 
     if (!firstname || !lastname || !email || !password || !repassword) {
-        $(".user-alert").append('<div class="alert alert-danger" role="alert">Please fill out all fields</div>');
+        addMsgToStorage("Please fill out all required fields *", "danger");
     } else {
         if (password !== repassword) {
-            $(".user-alert").append(`<div class="alert alert-danger" role="alert">Passwords don't match, try again</div>`);
+            addMsgToStorage("Passwords don't match, try again", "danger");
         } else {
             const user = {
                 firstname,
@@ -30,14 +30,13 @@ const signUp = () => {
                 type: "POST",
                 url: "/api/users",
                 contentType: "application/json",
-                dataType: "json",
                 data: JSON.stringify(user),
                 success: (data) => {
-                    localStorage.setItem("msg", data.msg);
-                    window.location = "/confirm";
+                    addMsgToStorage(data.msg, "success");
+                    setTimeout(() => window.location = "/confirm", 2000);
                 },
                 error: (error) => {
-                    $(".user-alert").append(`<div class="alert alert-danger" role="alert">${error.responseJSON.msg}</div>`);
+                    addMsgToStorage(error.responseJSON.msg, "danger");
                 }
             });
         };

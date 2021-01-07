@@ -25,15 +25,13 @@ const joinTeam = () => {
             },
             dataType: 'json',
             data: JSON.stringify(body),
-            success: (data) => {
-                updateLocalStorage()
-                    .then(() => {
-                        localStorage.setItem("msg", data.msg);
-                        window.location = "/";
-                    })
+            success: async (data) => {
+                await updateLocalStorage();
+                addMsgToStorage(data.msg, "success");
+                setTimeout(() => window.location = "/", 2000);
             },
             error: (error) => {
-                $(".user-alert").append(`<div class="alert alert-danger" role="alert">${error.responseJSON.msg}</div>`);
+                addMsgToStorage(error.responseJSON.msg, "danger");
                 const status = error.responseJSON.sessionExpired
                 if (status) toggleSessionModal();
             }

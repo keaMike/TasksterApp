@@ -16,48 +16,9 @@
     <div class="container mt-5">
         <div class="user-alert"></div>
         <h1>Members</h1>
-        <i class="refresh-btn fas fa-sync" onclick="refresh()"></i>
-        <div class="members"></div>
-
-        <div class="modal edit-modal fade" id="editMemberModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <form class="edit-task-form" onsubmit="updateMember(event)">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Edit member</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <input class="form-control" type="text" id="edit-firstname" readonly>
-                            </div>
-                            <div class="form-group">
-                                <input class="form-control" type="text" id="edit-lastname" readonly>
-                            </div>
-                            <div class="form-group">
-                                <div class="form-group">
-                                    <label for="edit-role">Role</label>
-                                    <select class="form-control" id="edit-role">
-                                        <option value="0">Member</option>
-                                        <option value="1">Admin</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <input type="hidden" id="edit-id">
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" onclick="removeMember(event)">Remove
-                                member</button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save changes</button>
-                        </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="footer"></div>
+        <i class="refresh-btn fas fa-sync" onclick="refreshMembers()"></i>
+        <div class="members mt-3"></div>
+        <div class="footer"></div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"

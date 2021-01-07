@@ -9,7 +9,7 @@ const login = () => {
     const password = $("#password").val();
 
     if (!email || !password) {
-        $(".user-alert").append('<div class="alert alert-danger" role="alert">Invalid email or password, try again</div>');
+        addMsgToStorage("Invalid email or password, try again", "danger");
     } else {
         const user = {
             email,
@@ -19,18 +19,17 @@ const login = () => {
         $.ajax({
             type: "POST",
             url: "/api/auth/signin",
-            contentType: "application/json;charset=utf-8",
-            dataType: 'json',
+            contentType: "application/json",
             data: JSON.stringify(user),
             success: (data) => {
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("refreshToken", data.refreshToken);
                 localStorage.setItem("user", JSON.stringify(data.user));
-                localStorage.setItem("msg", data.msg);
-                window.location = "/";
+                addMsgToStorage(data.msg, "success");
+                setTimeout(() => window.location = "/", 2000);
             },
             error: (error) => {
-                $(".user-alert").append(`<div class="alert alert-danger" role="alert">${error.responseJSON.msg}</div>`);
+                addMsgToStorage(error.responseJSON.msg, "danger");
             }
         });
     }

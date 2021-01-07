@@ -21,12 +21,12 @@ const sendResetEmail = () => {
             dataType: 'json',
             data: JSON.stringify(user),
             success: (data) => {
-                localStorage.setItem("msg", data.msg);
-                window.location = "/";
+                addMsgToStorage(data.msg, "success");
+                setTimeout(() => window.location = "/", 2000);
             },
             error: (error) => {
-                $(".user-alert").append(`<div class="alert alert-danger" role="alert">${error.responseJSON.msg}</div>`);
+                addMsgToStorage(error.responseJSON.msg);
             }
-        })
-    }
-}
+        });
+    };
+};

@@ -7,7 +7,7 @@ const auth = (req, res, next) => {
 
     try {
         jwt.verify(token, process.env.JWT_KEY, (error, user) => {
-            if (error) return res.status(400).json({ msg: "Something went wrong... try again or contact us " });
+            if (error) return res.status(400).json({ msg: "Your session has expired", sessionExpired: true });
             req.user = user;
             next();
         });

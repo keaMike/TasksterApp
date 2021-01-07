@@ -1,13 +1,9 @@
 const socket = io();
 
 $(document).ready(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    checkIfUserOrMember();
 
-    if (user === null) {
-        window.location = "/404";
-    } else if (!user.teamToken) {
-        window.location = "/404";
-    };
+    const user = JSON.parse(localStorage.getItem("user"));
 
     const message = {
         from: user.firstname,
@@ -19,14 +15,13 @@ $(document).ready(() => {
 });
 
 let isTypingEmitted = false;
-let isStoppedTypingEmitted = false;
 
 $("#message").on("input", () => {
     const user = JSON.parse(localStorage.getItem("user"));
     const message = $("#message").val();
 
     if (message) {
-        const message = {
+        const isTypingMessage = {
             from: user.firstname,
             team: user.teamToken,
             textContent: " is typing",
@@ -34,27 +29,22 @@ $("#message").on("input", () => {
         };
 
         if (!isTypingEmitted) {
-            socket.emit("typing", { data: message });
+            socket.emit("typing", { data: isTypingMessage });
             isTypingEmitted = true;
-            isStoppedTypingEmitted = false;
         };
 
     } else {
-        const message = {
+        const stoppedTypingMessage = {
             from: user.firstname,
             team: user.teamToken,
             textContent: " stopped typing",
             timestamp: getFullDate()
         };
 
-        if (!isStoppedTypingEmitted) {
-            socket.emit("stopped-typing", { data: message });
-            isStoppedTypingEmitted = true;
-            isTypingEmitted = false;
-        }
+        socket.emit("stopped-typing", { data: stoppedTypingMessage });
+        isTypingEmitted = false;
     };
 });
-
 
 $(".chat-form").on("submit", (event) => {
     event.preventDefault();
@@ -75,18 +65,26 @@ $(".chat-form").on("submit", (event) => {
 
         socket.emit("sending-message", { data: message });
 
-        $(".messages").prepend(`
-            <div class="message-row your-message">
-                <div class="message-content">
-                    <div class="message-text">You: ${message.textContent}</div>
-                    <div class="message-time">${message.timestamp}</div>
-                </div>
-            </div>
-        `);
+        appendYourMessage();
     };
 });
 
 socket.on("update-messages", (data) => {
+    appendOtherMessage();
+});
+
+const appendYourMessage = () => {
+    $(".messages").prepend(`
+        <div class="message-row your-message">
+            <div class="message-content">
+                <div class="message-text">You: ${message.textContent}</div>
+                <div class="message-time">${message.timestamp}</div>
+            </div>
+        </div>
+    `);
+};
+
+const appendOtherMessage = () => {
     $(".messages").prepend(`
         <div class="message-row other-message">
             <div class="message-content">
@@ -95,7 +93,7 @@ socket.on("update-messages", (data) => {
             </div>
         </div>
     `);
-});
+};
 
 const getFullDate = () => {
     const date = new Date();

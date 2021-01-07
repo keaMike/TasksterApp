@@ -11,6 +11,7 @@ const createTeam = () => {
         $(".user-alert").append('<div class="alert alert-danger" role="alert">Invalid team name, try again</div>');
     } else {
         const token = localStorage.getItem("token");
+
         const body = {
             teamname,
         };
@@ -25,12 +26,12 @@ const createTeam = () => {
             dataType: 'json',
             data: JSON.stringify(body),
             success: async (data) => {
-                localStorage.setItem("msg", data.msg);
+                addMsgToStorage(data.msg, "success");
                 await updateLocalStorage();
-                window.location = "/";
+                setTimeout(() => window.location = "/", 2000);
             },
             error: (error) => {
-                $(".user-alert").append(`<div class="alert alert-danger" role="alert">${error.responseJSON.msg}</div>`);
+                addMsgToStorage(error.responseJSON.msg, "danger");
                 const status = error.responseJSON.sessionExpired
                 if (status) toggleSessionModal();
             }

@@ -3,7 +3,7 @@ const User = require("../models/User")
 const RefreshToken = require("../models/RefreshToken");
 const bcryptHandler = require("../utils/bcryptHandler")
 const { auth } = require("../middleware/auth")
-const { generateAccessToken, generateRefreshToken } = require("../utils/tokenHandler");
+const { generateAccessToken, generateRefreshToken, getIdFromRefreshToken } = require("../utils/tokenHandler");
 
 // @route GET /user
 // @description Get user data
@@ -41,24 +41,21 @@ router.post("/signin", async (req, res) => {
         };
 
         const filter = { email };
+        const fields = { firstname: 1, lastname: 1, email: 1, isAdmin: 1, teamToken: 1, isConfirmed: 1 };
 
-        const user = await User.findOne(filter);
+        const user = await User.findOne(filter, fields);
 
         if (!user) return res.status(404).json({ msg: "Sign in failed, invalid email or password" });
 
         if (!user.isConfirmed) return res.status(401).json({ msg: "You need to verify you account first" });
 
+        const userDTO = user.toObject();
+        delete userDTO._id;
+        delete userDTO.isConfirmed;
+
         const isPasswordsEqual = await bcryptHandler.comparePasswords(password, user.password)
 
         if (isPasswordsEqual) {
-            const userDTO = {
-                firstname: user.firstname,
-                lastname: user.lastname,
-                email: user.email,
-                isAdmin: user.isAdmin,
-                teamToken: user.teamToken
-            };
-
             const token = await generateAccessToken(user._id);
             const refreshToken = await generateRefreshToken(user._id);
 
@@ -98,7 +95,8 @@ router.post("/token", async (req, res) => {
 
         if (!doc) return res.status(401).json({ msg: "You are not allowed to renew your access token" });
 
-        const token = await generateAccessToken(user._id);
+        const userId = await getIdFromRefreshToken(doc);
+        const token = await generateAccessToken(userId);
         return res.status(200).json({ msg: "You have successfully renewed your session", token });
 
     } catch (error) {

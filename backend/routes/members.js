@@ -14,8 +14,9 @@ router.get("/:teamToken", auth, async (req, res) => {
 
         const filter = { teamToken };
         const sort = { isAdmin: -1 };
+        const fields = { firstname: 1, lastname: 1, isAdmin: 1 };
 
-        const members = await User.find(filter).sort(sort);
+        const members = await User.find(filter, fields).sort(sort);
 
         if (!members) return res.status(400).json({ msg: "Invalid request, try again" });
 
@@ -43,7 +44,7 @@ router.patch("/:id", auth, async (req, res) => {
             const filter = { _id };
             const update = { $set: { isAdmin } };
 
-            const user = User.findOneAndUpdate(filter, update)
+            const user = await User.findOneAndUpdate(filter, update);
 
             if (!user) return res.status(400).json({ msg: "Invalid request, try again" });
             return res.status(200).json({ msg: "Team member role was successfully changed" });
@@ -64,7 +65,11 @@ router.patch("/remove/:id", auth, async (req, res) => {
         const userId = req.user._id;
         const _id = req.params.id;
 
-        if (userId === _id) return res.status(401).json({ msg: "You are not allowed to remove yourself" });
+        const creatorFilter = { createdBy: userId }
+
+        const creator = await Team.findOne(creatorFilter);
+
+        if (creator) return res.status(401).json({ msg: "As creator, you are not allowed to remove yourself" });
 
         const isVerified = await isUserAdmin(userId);
 

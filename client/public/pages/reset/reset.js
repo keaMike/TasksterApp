@@ -12,11 +12,10 @@ const resetPassword = () => {
     const repassword = $("#repassword").val();
 
     if (!password || !repassword) {
-        $(".user-alert").append('<div class="alert alert-danger" role="alert">Please fill out both password fields</div>');
+        addMsgToStorage("Please fill out both password fields", "danger");
     } else {
         if (password !== repassword) {
-            console.log(password, repassword);
-            $(".user-alert").append(`<div class="alert alert-danger" role="alert">Passwords don't match, try again</div>`);
+            addMsgToStorage("Passwords don't match, try again", "danger");
         } else {
             const user = {
                 token: id,
@@ -30,13 +29,13 @@ const resetPassword = () => {
                 dataType: "json",
                 data: JSON.stringify(user),
                 success: (data) => {
-                    localStorage.setItem("msg", data.msg);
-                    window.location = "/";
+                    addMsgToStorage(data.msg, "success");
+                    setTimeout(() => window.location = "/", 2000);
                 },
                 error: (error) => {
-                    $(".user-alert").append(`<div class="alert alert-danger" role="alert">${error.responseJSON.msg}</div>`);
+                    addMsgToStorage(error.responseJSON.msg, "danger");
                 }
-            })
-        }
-    }
+            });
+        };
+    };
 };

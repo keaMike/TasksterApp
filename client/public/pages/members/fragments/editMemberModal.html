@@ -1,0 +1,37 @@
+<div class="modal edit-modal fade" id="editMemberModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <form class="edit-member-form" onsubmit="updateMember(event)">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit member</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input class="form-control" type="text" id="edit-firstname" readonly>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="text" id="edit-lastname" readonly>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group">
+                            <label for="edit-role">Role</label>
+                            <select class="form-control" id="edit-role">
+                                <option value="0">Member</option>
+                                <option value="1">Admin</option>
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" id="edit-id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="removeMember(event)">Remove
+                        member</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+        </form>
+    </div>
+</div>

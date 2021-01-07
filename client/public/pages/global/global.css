@@ -54,3 +54,8 @@ img {
     }
   }
 
+@media screen and (max-width: 992px) {
+    .col-12 img {
+        visibility: hidden;
+    }
+}

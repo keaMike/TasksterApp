@@ -10,11 +10,11 @@ router.get("/teamtasks/:teamToken", auth, async (req, res) => {
     try {
         const teamToken = req.params.teamToken;
         const filter = { teamToken };
-        const sort = { createdAt: -1 }
+        const sort = { createdAt: -1 };
 
-        const tasks = await Task.find(filter).sort(sort)
+        const tasks = await Task.find(filter).sort(sort);
 
-        if (!tasks) return res.status(400).json({ msg: "Invalid request, try again" })
+        if (!tasks) return res.status(400).json({ msg: "Invalid request, try again" });
         return res.status(200).json({ tasks: tasks });
 
     } catch (error) {
@@ -34,8 +34,8 @@ router.get("/mytasks", auth, async (req, res) => {
 
         const tasks = await Task.find(filter).sort(sort);
 
-        if (!task) return res.status(400).json({ msg: "Invalid request, try again" });
-        return res.status(200).json({ tasks: tasks });
+        if (!tasks) return res.status(400).json({ msg: "Invalid request, try again" });
+        return res.status(200).json({ tasks });
 
     } catch (error) {
         console.log("Get assigned tasks by ID " + error);
@@ -78,22 +78,23 @@ router.post("/", auth, async (req, res) => {
 });
 
 // @route PATCH /assign
-// @description Assign task to user
+// @description Assign task to member
 // @access Private
 router.patch("/assign", auth, async (req, res) => {
     try {
-        const userId = req.user._id;
-        const { taskId } = req.body;
+        const _id = req.user._id;
+        const { userId, taskId, firstname, lastname } = req.body;
 
-        if (!userId || !taskId) return res.status(400).json({ msg: "Invalid request, try again" });
+        if (!taskId || !firstname || !lastname) return res.status(400).json({ msg: "Invalid request, try again" });
 
         const filter = { _id: taskId };
-        const update = { $set: { assignedTo: userId } };
+        const update = { $set: { assignedTo: user } };
 
         const task = await Task.findOneAndUpdate(filter, update);
 
         if (!task) return res.status(400).json({ msg: "Invalid request, try again" });
-        return res.status(200).json({ msg: "Task was successfullly assigned to you!" });
+
+        return res.status(200).json({ msg: `Task was successfullly assigned to ${firstname} ${lastname}!` });
 
     } catch (error) {
         console.log("Assign task: " + error);
@@ -132,14 +133,14 @@ router.patch("/unassign", auth, async (req, res) => {
 router.patch("/", auth, async (req, res) => {
     try {
         const userId = req.user._id;
-        const { _id, title, description, price } = req.body;
+        const { taskId, title, description, price } = req.body;
 
-        if (!_id || !title || !description || !price) return res.status(400).json({ msg: "Invalid request, try again" });
+        if (!taskId || !title || !description || !price) return res.status(400).json({ msg: "Invalid request, try again" });
 
         const isVerified = await isUserAdmin(userId);
 
         if (isVerified) {
-            const filter = { _id };
+            const filter = { _id: taskId };
             const update = { $set: { title, description, price } };
 
             const task = await Task.findOneAndUpdate(filter, update);

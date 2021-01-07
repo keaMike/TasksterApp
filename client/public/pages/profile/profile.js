@@ -2,14 +2,23 @@ $(document).ready(() => {
     const user = JSON.parse(localStorage.getItem("user"));
 
     if (user.isAdmin) {
-        $(".col-12").append('<button class="delete-team-btn btn btn-danger" onclick="toggleDeleteAlert()">Delete team</button>');
-        $(".col-12").append('<small class="d-block">Only allowed by the creator</small>');
+        addDeleteTeamBtn();
     };
 
+    settingProfileFields(user);
+});
+
+const addDeleteTeamBtn = () => {
+    $(".col-12")
+        .append('<button class="delete-team-btn btn btn-danger" onclick="toggleDeleteAlert()">Delete team</button>')
+        .append('<small class="d-block">Only allowed by the creator</small>');
+};
+
+const settingProfileFields = (user) => {
     $("#firstname").val(user.firstname);
     $("#lastname").val(user.lastname);
     $("#team-token").val(user.teamToken);
-});
+};
 
 const updateProfile = (event) => {
     event.preventDefault();
@@ -26,8 +35,8 @@ const updateProfile = (event) => {
     const token = localStorage.getItem("token");
 
     if (!firstname || !lastname) {
-        $(".user-alert").append(`<div class="alert alert-danger" role="alert">Please fill out firstname and lastname</div>`);
-    }
+        addMsgToStorage("Please fill out firstname and lastname", "danger");
+    };
 
     if (firstname !== currentFirstname || lastname !== currentLastname) {
         const body = {
@@ -43,20 +52,21 @@ const updateProfile = (event) => {
                 "auth-token": token
             },
             data: JSON.stringify(body),
-            success: (data) => {
-                $(".user-alert").append(`<div class="alert alert-success" role="alert">${data.msg}</div>`);
+            success: async (data) => {
+                addMsgToStorage(data.msg, "success");
+                await updateLocalStorage();
             },
             error: (error) => {
-                $(".user-alert").append(`<div class="alert alert-danger" role="alert">${error.responseJSON.msg}</div>`);
-                const status = error.responseJSON.sessionExpired
-                if (status) toggleSessionModal();
+                addMsgToStorage(error.responseJSON.msg, "danger");
+                const isExpired = error.responseJSON.sessionExpired;
+                if (isExpired) toggleSessionModal();
             }
         });
-    }
+    };
 
     if (password && confirmPassword) {
         if (password !== confirmPassword) {
-            $(".user-alert").append(`<div class="alert alert-danger" role="alert">Passwords doesn't match</div>`);
+            addMsgToStorage("Passwords doesn't match", "danger");
         } else {
             const body = {
                 password,
@@ -68,19 +78,20 @@ const updateProfile = (event) => {
                 url: "/api/users/reset",
                 contentType: "application/json",
                 data: JSON.stringify(body),
-                success: (data) => {
-                    $(".user-alert").append(`<div class="alert alert-success" role="alert">${data.msg}</div>`);
+                success: async (data) => {
+                    addMsgToStorage(data.msg, "success");
                     $("#password").val("");
                     $("#confirm-password").val("");
+                    await updateLocalStorage();
                 },
                 error: (error) => {
-                    $(".user-alert").append(`<div class="alert alert-danger" role="alert">${error.responseJSON.msg}</div>`);
-                    const status = error.responseJSON.sessionExpired
-                    if (status) toggleSessionModal();
+                    addMsgToStorage(error.responseJSON.msg, "danger");
+                    const isExpired = error.responseJSON.sessionExpired;
+                    if (isExpired) toggleSessionModal();
                 }
             });
-        }
-    }
+        };
+    };
 
     if (teamToken && teamToken !== currentTeamToken) {
         const body = {
@@ -95,17 +106,17 @@ const updateProfile = (event) => {
                 "auth-token": token
             },
             data: JSON.stringify(body),
-            success: (data) => {
-                $(".user-alert").append(`<div class="alert alert-success" role="alert">${data.msg}</div>`);
+            success: async (data) => {
+                addMsgToStorage(data.msg, "success");
+                await updateLocalStorage();
             },
             error: (error) => {
-                $(".user-alert").append(`<div class="alert alert-danger" role="alert">${error.responseJSON.msg}</div>`);
-                const status = error.responseJSON.sessionExpired
-                if (status) toggleSessionModal();
+                addMsgToStorage(error.responseJSON.msg, "danger");
+                const isExpired = error.responseJSON.sessionExpired;
+                if (isExpired) toggleSessionModal();
             }
         });
     };
-    updateLocalStorage();
 };
 
 const toggleDeleteAlert = () => {
@@ -131,14 +142,14 @@ const deleteTeam = () => {
         },
         data: JSON.stringify(body),
         success: async (data) => {
-            localStorage.setItem("msg", data.msg);
+            addMsgToStorage(data.msg, "success");
             await updateLocalStorage();
-            window.location = "/";
+            setTimeout(() => window.location = "/", 2000);
         },
         error: (error) => {
-            $(".user-alert").append(`<div class="alert alert-danger" role="alert">${error.responseJSON.msg}</div>`);
-            const status = error.responseJSON.sessionExpired
-            if (status) toggleSessionModal();
+            addMsgToStorage(error.responseJSON.msg, "danger");
+            const isExpired = error.responseJSON.sessionExpired;
+            if (isExpired) toggleSessionModal();
         }
     });
 };

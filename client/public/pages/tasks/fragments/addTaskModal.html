@@ -1,0 +1,29 @@
+<div class="modal add-modal fade" id="addTaskModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <form class="add-task-form" onsubmit="addTask(event)">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add task</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input class="form-control" type="text" id="title" placeholder="Title">
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" col="10" row="10" id="description"
+                            placeholder="Description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="text" id="price" placeholder="Price e.g 2$">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save task</button>
+                </div>
+        </form>
+    </div>
+</div>

@@ -1,17 +1,19 @@
 $(document).ready(() => {
     const user = JSON.parse(localStorage.getItem("user"));
 
-    if (user === null) {
-        window.location = "/404";
-    } else if (!user.teamToken) {
-        window.location = "/404";
-    }
+    checkIfUserOrMember();
 
-    if (!user.isAdmin) {
-        $(".edit-modal").remove();
-    }
+    if (user.isAdmin) {
+        loadAdminFeatures();
+    };
+
     getTeamMembers();
 });
+
+const loadAdminFeatures = () => {
+    $(".container").append(`<div class="editMemberModal"></div>`);
+    $(".editMemberModal").load("/pages/members/fragments/editMemberModal.html");
+};
 
 const getTeamMembers = () => {
     const token = localStorage.getItem("token");
@@ -28,9 +30,9 @@ const getTeamMembers = () => {
             appendTeamMebersToView(data);
         },
         error: (error) => {
-            $(".user-alert").append(`<div class="alert alert-danger" role="alert">${error.responseJSON.msg}</div>`);
-            const status = error.responseJSON.sessionExpired
-            if (status) toggleSessionModal();
+            addMsgToStorage(error.responseJSON.msg, "danger");
+            const isExpired = error.responseJSON.sessionExpired;
+            if (isExpired) toggleSessionModal();
         }
     });
 };
@@ -62,7 +64,7 @@ const appendTeamMebersToView = (data) => {
     });
 }
 
-const refresh = () => {
+const refreshMembers = () => {
     $(".refresh-btn").addClass("spinner");
     getTeamMembers();
     setTimeout(() => {
@@ -87,23 +89,13 @@ const updateMember = (event) => {
     event.preventDefault();
     $(".edit-modal").modal("hide");
     const token = localStorage.getItem("token");
-    const role = $("#edit-role").val();
+    const roleIndex = parseInt($("#edit-role").val());
     const id = $("#edit-id").val();
-    let isAdmin;
-    switch (role) {
-        case "0": {
-            isAdmin = false;
-            break;
-        }
-        case "1": {
-            isAdmin = true;
-            break;
-        }
-    };
+    const isAdmin = [false, true][roleIndex];
 
     const body = {
         isAdmin
-    }
+    };
 
     $.ajax({
         type: "PATCH",
@@ -114,13 +106,13 @@ const updateMember = (event) => {
         },
         data: JSON.stringify(body),
         success: (data) => {
-            $(".user-alert").append(`<div class="alert alert-success" role="alert">${data.msg}</div>`);
+            addMsgToStorage(data.msg, "success");
             updateLocalStorage();
         },
         error: (error) => {
-            $(".user-alert").append(`<div class="alert alert-danger" role="alert">${error.responseJSON.msg}</div>`);
-            const status = error.responseJSON.sessionExpired
-            if (status) toggleSessionModal();
+            addMsgToStorage(error.responseJSON.msg, "danger");
+            const isExpired = error.responseJSON.sessionExpired;
+            if (isExpired) toggleSessionModal();
         }
     });
 };
@@ -138,15 +130,15 @@ const removeMember = (event) => {
         headers: {
             "auth-token": token
         },
-        success: (data) => {
-            $(".user-alert").append(`<div class="alert alert-success" role="alert">${data.msg}</div>`);
+        success: async (data) => {
+            addMsgToStorage(data.msg, "success");
             $(`#${id}`).remove();
-            updateLocalStorage();
+            await updateLocalStorage();
         },
         error: (error) => {
-            $(".user-alert").append(`<div class="alert alert-danger" role="alert">${error.responseJSON.msg}</div>`);
-            const status = error.responseJSON.sessionExpired
-            if (status) toggleSessionModal();
+            addMsgToStorage(error.responseJSON.msg, "danger");
+            const isExpired = error.responseJSON.sessionExpired;
+            if (isExpired) toggleSessionModal();
         }
     });
 }

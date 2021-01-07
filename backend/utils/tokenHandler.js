@@ -44,7 +44,17 @@ const saveRefreshToken = (token) => {
     });
 };
 
+const getIdFromRefreshToken = (doc) => {
+    return new Promise((resolve, reject) => {
+        jwt.verify(doc.refreshToken, process.env.JWT_REFRESH_KEY, (error, user) => {
+            if (error) reject();
+            resolve(user);
+        });
+    });
+};
+
 module.exports = {
     generateAccessToken,
-    generateRefreshToken
+    generateRefreshToken,
+    getIdFromRefreshToken
 };

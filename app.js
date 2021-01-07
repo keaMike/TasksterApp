@@ -1,7 +1,7 @@
 require('dotenv').config();
-require('./backend/db/mongoose.js');
 const express = require('express');
 const app = express();
+require('./backend/db/mongoose.js');
 require('./backend/utils/configApp').setupOptions(app);
 require('./backend/utils/configApp').setupRoutes(app);
 require('./backend/utils/configApp').setupPagesAndStaticFiles(app);
