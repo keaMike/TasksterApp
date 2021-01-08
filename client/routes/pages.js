@@ -55,6 +55,10 @@ router.get("/reset", (req, res) => {
     return res.sendFile("/reset/reset.html", { root: public });
 });
 
+router.get("/cookies", (req, res) => {
+    return res.sendFile("/cookies/cookies.html", { root: public });
+});
+
 router.get("/404", (req, res) => {
     return res.sendFile("/404/404.html", { root: public });
 });

@@ -2,6 +2,8 @@ $(document).ready(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     setNavbar(user);
     setFooter();
+    setCookieConsent();
+    windowSizeListener();
 });
 
 const setNavbar = (user) => {
@@ -16,6 +18,12 @@ const setNavbar = (user) => {
 
 const setFooter = () => {
     $(".footer").load("pages/fragments/footer.html");
+};
+
+const setCookieConsent = () => {
+    $.get("/pages/fragments/cookieconsent.html", (data) => {
+        $("body").append(data);
+    });
 };
 
 const addMsgToStorage = (msg, type) => {
@@ -119,14 +127,20 @@ const getNewAccessToken = () => {
     });
 };
 
-window.addEventListener('resize', () => {
-    const windowWidth = $(window).width();
+const windowSizeListener = () => {
+    const numberOfRows = $(".row").length;
 
-    if (windowWidth < 1000) {
-        $(".col-6").removeClass("col-6").addClass("col-12");
-        $(".home-image").hide();
-    } else {
-        $(".col-12").removeClass("col-12").addClass("col-6");
-        $(".home-image").show();
+    if (numberOfRows > 1) {
+        window.addEventListener('resize', () => {
+            const windowWidth = $(window).width();
+
+            if (windowWidth < 1000) {
+                $(".col-6").removeClass("col-6").addClass("col-12");
+                $(".home-image").hide();
+            } else {
+                $(".col-12").removeClass("col-12").addClass("col-6");
+                $(".home-image").show();
+            };
+        });
     };
-});
+};
