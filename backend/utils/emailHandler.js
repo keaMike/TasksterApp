@@ -15,7 +15,6 @@ const sendConfirmation = async (email, _id) => {
                         email,
                         token
                     };
-
                     resolve(await sendEmail(request, "confirm"));
                 })
             );
@@ -41,7 +40,6 @@ const sendReset = async (email, _id) => {
                         email,
                         token
                     };
-
                     resolve(await sendEmail(request, "reset"));
                 })
             );
@@ -70,8 +68,8 @@ const sendEmail = async (request, type) => {
                 const confirmMail = await getConfirmEmail(request);
                 const confirmStatus = await new Promise((resolve, reject) => {
                     transporter.sendMail(confirmMail, (error, info) => {
-                        if (error) throw new Error("Something went wrong... Try again later or contact us");
-                        return `Email has been sent to ${request.email}`;
+                        if (error) reject("Something went wrong... Try again later or contact us");
+                        resolve(`Email has been sent to ${request.email}`);
                     });
                 });
                 return confirmStatus;

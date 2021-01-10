@@ -64,8 +64,8 @@ router.patch("/remove/:id", auth, async (req, res) => {
     try {
         const userId = req.user._id;
         const _id = req.params.id;
-
-        const creatorFilter = { createdBy: userId }
+        console.log(userId, _id);
+        const creatorFilter = { createdBy: userId };
 
         const creator = await Team.findOne(creatorFilter);
 

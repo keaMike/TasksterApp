@@ -16,9 +16,9 @@ router.post("/", auth, async (req, res) => {
 
         const filter = { teamname };
 
-        const doc = Team.findOne(filter)
+        const doc = await Team.findOne(filter);
 
-        if (doc) return res.status({ msg: "Team with given name already exists" });
+        if (doc) return res.status(400).json({ msg: "Team with given name already exists" });
 
         const team = new Team({
             teamname,
@@ -30,7 +30,7 @@ router.post("/", auth, async (req, res) => {
         if (!savedTeam) return res.status(400).json({ msg: "Team couldn't be registered, please try again" });
 
         const userFilter = { _id: userId };
-        const userUpdate = { $set: { isAdmin: true, teamToken: doc.token } };
+        const userUpdate = { $set: { isAdmin: true, teamToken: savedTeam.token } };
         const callback = (error) => {
             if (error) return res.status({ msg: "Failed to make you team admin, please contact us for help" });
         };
@@ -47,7 +47,7 @@ router.post("/", auth, async (req, res) => {
 // @route PATCH /
 // @description Join team
 // @access Private
-router.patch("/", auth, async (req, res) => {
+router.patch("/join", auth, async (req, res) => {
     try {
         const userId = req.user._id;
         const { teamToken } = req.body;
@@ -74,6 +74,29 @@ router.patch("/", auth, async (req, res) => {
     };
 });
 
+// @route PATCH /
+// @description Leave team
+// @access Private
+router.patch("/leave", auth, async (req, res) => {
+    try {
+        const userId = req.user._id;
+
+        if (!userId) return res.status(400).json({ msg: "Invalid request, please try again" });
+
+        const filter = { _id: userId };
+        const update = { $set: { teamToken: "" } };
+
+        const user = await User.findOneAndUpdate(filter, update);
+
+        if (!user) return res.status(400).json({ msg: "Failed to join team, please try again" });
+        return res.status(200).json({ msg: "You have successfully left the team!" });
+
+    } catch (error) {
+        console.log("Leave team: " + error);
+        return res.status(500).json({ msg: "Something went wrong... Try again later or contact us" });
+    };
+});
+
 // @route DELETE /
 // @description Delete team
 // @access Private & Creator only
@@ -95,6 +118,7 @@ router.delete("/", auth, async (req, res) => {
         const removedTeam = await Team.findOneAndRemove(teamFilter)
         if (!removedTeam) return res.status(400).json({ msg: "Invalid request, please try again" });
 
+        const taskFilter = { teamToken };
         const userFilter = { teamToken };
         const userUpdate = { $set: { teamToken: "", isAdmin: false } };
         const options = { multi: true };
@@ -102,7 +126,9 @@ router.delete("/", auth, async (req, res) => {
             if (error) return res.status({ msg: "Failed to remove teammembers, please try again" });
         };
 
-        User.updateMany(userFilter, userUpdate, options, callback)
+        User.updateMany(userFilter, userUpdate, options, callback);
+        Task.deleteMany(taskFilter, callback);
+
         return res.status(200).json({ msg: "You successfully deleted the team" });
     } catch (error) {
         console.log("Delete team: " + error);

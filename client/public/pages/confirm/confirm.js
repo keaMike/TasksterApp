@@ -11,7 +11,6 @@ $(document).ready(() => {
             type: "PATCH",
             url: "/api/users/confirm",
             contentType: "application/json",
-            dataType: "json",
             data: JSON.stringify(body),
             success: (data) => {
                 addMsgToStorage(data.msg, "success");
@@ -34,7 +33,7 @@ const sendConfirmationEmail = () => {
     const email = $("#email").val();
 
     if (!email) {
-        $(".user-alert").append('<div class="alert alert-danger" role="alert">Please write a valid email</div>');
+        addMsgToStorage("Please write a valid email", "danger");
     } else {
         const body = {
             email
@@ -44,7 +43,6 @@ const sendConfirmationEmail = () => {
             type: "POST",
             url: "/api/users/resend-confirm",
             contentType: "application/json",
-            dataType: "json",
             data: JSON.stringify(body),
             success: (data) => {
                 addMsgToStorage(data.msg, "success");

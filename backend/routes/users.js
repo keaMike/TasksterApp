@@ -32,7 +32,6 @@ router.post("/", async (req, res) => {
         });
 
         const hash = await bcryptHandler.hashPassword(password);
-        console.log("HASH", hash);
         user.password = hash;
         const savedUser = await user.save();
         const emailStatus = await sendConfirmation(savedUser.email, savedUser._id);
@@ -56,13 +55,13 @@ router.post("/forgot", async (req, res) => {
         const filter = { email };
         const user = await User.findOne(filter);
         if (!user) return res.status(400).json({ msg: "Invalid email, try again" });
-        const emailStatus = await sendReset(user.email, user._id)
+        const emailStatus = await sendReset(user.email, user._id);
 
         return res.status(200).json({ msg: emailStatus });
 
     } catch (error) {
         console.log("Forgot password: " + error);
-        return res.status(500).json({ msg: "Something went wrong... Try again later or contact us" })
+        return res.status(500).json({ msg: "Something went wrong... Try again later or contact us" });
     };
 });
 
@@ -78,8 +77,7 @@ router.post('/resend-confirm', async (req, res) => {
         const filter = { email };
         const user = await User.findOne(filter);
         if (!user) return res.status(400).json({ msg: "Invalid email, try again" });
-        const emailStatus = await sendConfirmation(user.email, user._id)
-
+        const emailStatus = await sendConfirmation(user.email, user._id);
         return res.status(200).json({ msg: emailStatus });
 
     } catch (error) {
@@ -122,21 +120,21 @@ router.patch("/reset", async (req, res) => {
 
         if (!password) return res.status(400).json({ msg: "Invalid password, please try again" });
 
-        const _id = jwt.verify(token, process.env.JWT_KEY);
+        const _id = jwt.verify(token, process.env.JWT_KEY)._id;
 
-        const hash = await bcryptHandler.hashPassword(password)
+        const hash = await bcryptHandler.hashPassword(password);
 
         const filter = { _id };
         const update = { $set: { password: hash } };
 
-        const user = await User.findOneAndUpdate(filter, update)
+        const user = await User.findOneAndUpdate(filter, update);
 
         if (!user) return res.status(400).json({ msg: "Invalid request, try again" });
         return res.status(200).json({ msg: "Your password was successfully reset" });
 
     } catch (error) {
         console.log("Reset password: " + error);
-        return res.status(500).json({ msg: "Something went wrong... Try again later or contact us" })
+        return res.status(500).json({ msg: "Something went wrong... Try again later or contact us" });
     };
 });
 
@@ -160,7 +158,7 @@ router.patch("/confirm", async (req, res) => {
 
     } catch (error) {
         console.log("Confirm user: " + error);
-        return res.status(500).json({ msg: "Something went wrong... Try again later or contact us" })
+        return res.status(500).json({ msg: "Something went wrong... Try again later or contact us" });
     };
 });
 
@@ -174,7 +172,7 @@ router.delete("/", auth, async (req, res) => {
         if (!_id) return res.status(500).json({ msg: "Something went wrong... Try again later or contact us" });
 
         const filter = { _id };
-        const user = await User.findOneAndDelete(filter)
+        const user = await User.findOneAndDelete(filter);
 
         if (!user) return res.status(400).json({ msg: "Invalid request, try again" });
         return res.status(200).json({ msg: "Your profile has successfully been deleted" });

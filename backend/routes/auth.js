@@ -12,17 +12,11 @@ router.get("/user", auth, async (req, res) => {
     try {
         const _id = req.user._id;
         const filter = { _id };
+        const fields = { firstname: 1, lastname: 1, email: 1, isAdmin: 1, teamToken: 1 };
 
-        const user = await User.findOne(filter);
+        const user = await User.findOne(filter, fields);
 
-        const userDTO = {
-            firstname: user.firstname,
-            lastname: user.lastname,
-            email: user.email,
-            isAdmin: user.isAdmin,
-            teamToken: user.teamToken
-        };
-        return res.status(200).json({ userDTO });
+        return res.status(200).json({ user });
     } catch (error) {
         console.log("Get user: " + error);
         return res.status(500).json({ msg: "Something went wrong... Try again later or contact us" });
@@ -53,7 +47,7 @@ router.post("/signin", async (req, res) => {
         delete userDTO._id;
         delete userDTO.isConfirmed;
 
-        const isPasswordsEqual = await bcryptHandler.comparePasswords(password, user.password)
+        const isPasswordsEqual = await bcryptHandler.comparePasswords(password, user.password);
 
         if (isPasswordsEqual) {
             const token = await generateAccessToken(user._id);

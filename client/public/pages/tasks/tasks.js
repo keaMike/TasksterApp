@@ -50,6 +50,7 @@ const getTasks = () => {
 const appendTasksToView = (data) => {
     const user = JSON.parse(localStorage.getItem("user"));
     const taskArray = data.tasks;
+    const tasks = $(".tasks");
     let rowNo = 1;
     resetTaskView(rowNo);
 
@@ -120,6 +121,10 @@ const addTask = (event) => {
     const description = $("#description").val();
     const price = $("#price").val();
 
+    $("#title").val("");
+    $("#description").val("");
+    $("#price").val("");
+
     const user = JSON.parse(localStorage.getItem("user"));
     const createdBy = user.firstname;
     const teamToken = user.teamToken;
@@ -143,6 +148,9 @@ const addTask = (event) => {
         data: JSON.stringify(body),
         success: (data) => {
             addMsgToStorage(data.msg, "success");
+            const user = JSON.parse(localStorage.getItem("user"));
+            const rowNo = $(".tasks")[0].children.length;
+            appendTask(data.task, user, rowNo);
         },
         error: (error) => {
             addMsgToStorage(error.responseJSON.msg, "danger");
@@ -179,8 +187,9 @@ const updateTask = (event) => {
                 "auth-token": token
             },
             data: JSON.stringify(body),
-            success: (data) => {
+            success: async (data) => {
                 addMsgToStorage(data.msg, "success");
+                updateTaskCard(body);
             },
             error: (error) => {
                 addMsgToStorage(error.responseJSON.msg, "danger");
@@ -189,6 +198,18 @@ const updateTask = (event) => {
             }
         });
     }
+};
+
+const updateTaskCard = (task) => {
+    const taskId = task.taskId;
+    const nodes = $(".tasks").find(".card");
+    const target = Array.from(nodes).find((task) => task.id === taskId);
+    const title = target.children[0].children[0];
+    const description = target.children[0].children[1];
+    const price = target.children[0].children[2];
+    title.textContent = task.title;
+    description.textContent = task.description;
+    price.textContent = task.price;
 };
 
 const deleteTask = (event) => {
@@ -266,6 +287,7 @@ const uncompleteTask = () => {
                 addMsgToStorage(data.msg, "success");
                 completeBtn.removeAttribute("disabled");
                 completeBtn.textContent = "Complete";
+                addAssignBtn(target);
             },
             error: (error) => {
                 addMsgToStorage(error.responseJSON.msg, "danger");
@@ -276,15 +298,22 @@ const uncompleteTask = () => {
     };
 };
 
+const addAssignBtn = (target) => {
+    const cardBody = target.children[0];
+    const button = document.createElement("button");
+    button.innerText = "Assign";
+    button.className = "btn btn-primary";
+    button.onclick = toggleAssignModal;
+    cardBody.append(button);
+};
+
 const assignTask = (event) => {
     event.preventDefault();
     $(".assign-task-modal").modal("hide");
     const token = localStorage.getItem("token");
-    const user = JSON.parse(localStorage.getItem("user"));
     const taskId = $("#task-id").val();
     const userId = $("#assign-task-select").val();
-    const firstname = user.firstname;
-    const lastname = user.lastname;
+    const [firstname, lastname] = $("#assign-task-select option:selected").text().split(" ");
     const nodes = $(".tasks").find(".card");
     const target = Array.from(nodes).find((task) => task.id === taskId);
     const assignBtn = target.children[0].children[6];
@@ -377,28 +406,31 @@ const toggleAssignModal = async (event) => {
     const taskId = target.id;
     $("#task-id").val(taskId);
 
-    $.ajax({
-        type: "GET",
-        url: "/api/members/" + teamToken,
-        contentType: "application/json",
-        headers: {
-            "auth-token": token
-        },
-        success: (data) => {
-            appendMembersToSelect(data.members);
-        },
-        error: (error) => {
-            addMsgToStorage(error.responseJSON.msg, "danger");
-        }
-    });
+    const membersAppended = $("#assign-task-select")[0].children.length;
 
+    if (membersAppended === 0) {
+        $.ajax({
+            type: "GET",
+            url: "/api/members/" + teamToken,
+            contentType: "application/json",
+            headers: {
+                "auth-token": token
+            },
+            success: (data) => {
+                appendMembersToSelect(data.members);
+            },
+            error: (error) => {
+                addMsgToStorage(error.responseJSON.msg, "danger");
+            }
+        });
+    };
+    $(".assign-task-modal").modal("toggle");
 };
 
 const appendMembersToSelect = (members) => {
     members.forEach((member) => {
         $("#assign-task-select").append(`<option value=${member._id}>${member.firstname} ${member.lastname}</option>`);
     });
-    $(".assign-task-modal").modal("toggle");
 };
 
 const getCardElement = async (target) => {

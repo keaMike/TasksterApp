@@ -9,7 +9,7 @@ const joinTeam = () => {
     const teamToken = $("#teamToken").val();
 
     if (!teamToken) {
-        $(".user-alert").append('<div class="alert alert-danger" role="alert">Invalid team token, try again</div>');
+        addMsgToStorage("Invalid team token, try again", "danger");
     } else {
         const token = localStorage.getItem("token");
         const body = {
@@ -18,7 +18,7 @@ const joinTeam = () => {
 
         $.ajax({
             type: "PATCH",
-            url: "/api/teams",
+            url: "/api/teams/join",
             contentType: "application/json",
             headers: {
                 "auth-token": token

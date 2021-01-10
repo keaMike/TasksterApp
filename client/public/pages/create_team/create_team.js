@@ -8,7 +8,7 @@ const createTeam = () => {
     const teamname = $("#teamname").val();
 
     if (!teamname) {
-        $(".user-alert").append('<div class="alert alert-danger" role="alert">Invalid team name, try again</div>');
+        addMsgToStorage("Invalid team name, try again", "danger");
     } else {
         const token = localStorage.getItem("token");
 
@@ -19,11 +19,10 @@ const createTeam = () => {
         $.ajax({
             type: "POST",
             url: "/api/teams",
-            contentType: "application/json;charset=utf-8",
+            contentType: "application/json",
             headers: {
                 "auth-token": token
             },
-            dataType: 'json',
             data: JSON.stringify(body),
             success: async (data) => {
                 addMsgToStorage(data.msg, "success");

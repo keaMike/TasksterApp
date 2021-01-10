@@ -48,7 +48,7 @@ router.get("/mytasks", auth, async (req, res) => {
 // @access Private & Admin Only
 router.post("/", auth, async (req, res) => {
     try {
-        const userId = req.user._id;
+        const _id = req.user._id;
         const { teamToken, title, description, price, createdBy } = req.body;
 
         if (!teamToken || !description || !price || !createdBy) return res.status(400).json({ msg: "Invalid request, try again" });
@@ -61,13 +61,13 @@ router.post("/", auth, async (req, res) => {
             createdBy
         });
 
-        const isVerified = await isUserAdmin(userId);
+        const isVerified = await isUserAdmin(_id);
 
         if (isVerified) {
-            const doc = await task.save();
+            const savedTask = await task.save();
 
-            if (!doc) return res.status(400).json({ msg: "Invalid request, try again" });
-            return res.status(200).json({ msg: "Task was successfully created!" });
+            if (!savedTask) return res.status(400).json({ msg: "Invalid request, try again" });
+            return res.status(200).json({ task: savedTask, msg: "Task was successfully created!" });
         } else {
             return res.status(401).json({ msg: "You are not allowed to use this feature" });
         };
@@ -79,7 +79,7 @@ router.post("/", auth, async (req, res) => {
 
 // @route PATCH /assign
 // @description Assign task to member
-// @access Private
+// @access Private & Admin Only
 router.patch("/assign", auth, async (req, res) => {
     try {
         const _id = req.user._id;
@@ -88,14 +88,19 @@ router.patch("/assign", auth, async (req, res) => {
         if (!taskId || !firstname || !lastname) return res.status(400).json({ msg: "Invalid request, try again" });
 
         const filter = { _id: taskId };
-        const update = { $set: { assignedTo: user } };
+        const update = { $set: { assignedTo: userId } };
 
-        const task = await Task.findOneAndUpdate(filter, update);
+        const isVerified = await isUserAdmin(_id);
 
-        if (!task) return res.status(400).json({ msg: "Invalid request, try again" });
+        if (isVerified) {
+            const task = await Task.findOneAndUpdate(filter, update);
 
-        return res.status(200).json({ msg: `Task was successfullly assigned to ${firstname} ${lastname}!` });
+            if (!task) return res.status(400).json({ msg: "Invalid request, try again" });
 
+            return res.status(200).json({ msg: `Task was successfullly assigned to ${firstname} ${lastname}!` });
+        } else {
+            return res.status(401).json({ msg: "You are not allowed to use this feature" });
+        };
     } catch (error) {
         console.log("Assign task: " + error);
         return res.status(500).json({ msg: "Something went wrong... Try again later or contact us" });
@@ -171,7 +176,7 @@ router.patch("/complete/:id", auth, async (req, res) => {
 
         if (isVerified) {
             const filter = { _id };
-            const update = { $set: { isCompleted: true } };
+            const update = { $set: { isCompleted: true, assignedTo: "" } };
 
             const task = await Task.findOneAndUpdate(filter, update);
 

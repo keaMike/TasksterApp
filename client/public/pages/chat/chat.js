@@ -14,6 +14,17 @@ $(document).ready(() => {
     socket.emit("joined", { data: message });
 });
 
+$(window).on("unload", () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const leftMessage = {
+        from: user.firstname,
+        team: user.teamToken,
+        textContent: " left the chat",
+        timestamp: getFullDate()
+    };
+    socket.emit("left", { data: leftMessage });
+});
+
 let isTypingEmitted = false;
 
 $("#message").on("input", () => {
@@ -65,15 +76,15 @@ $(".chat-form").on("submit", (event) => {
 
         socket.emit("sending-message", { data: message });
 
-        appendYourMessage();
+        appendYourMessage(message);
     };
 });
 
 socket.on("update-messages", (data) => {
-    appendOtherMessage();
+    appendOtherMessage(data);
 });
 
-const appendYourMessage = () => {
+const appendYourMessage = (message) => {
     $(".messages").prepend(`
         <div class="message-row your-message">
             <div class="message-content">
@@ -84,7 +95,7 @@ const appendYourMessage = () => {
     `);
 };
 
-const appendOtherMessage = () => {
+const appendOtherMessage = (data) => {
     $(".messages").prepend(`
         <div class="message-row other-message">
             <div class="message-content">

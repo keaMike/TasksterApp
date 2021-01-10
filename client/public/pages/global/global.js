@@ -81,11 +81,13 @@ const updateLocalStorage = async () => {
             "auth-token": token
         },
         success: (data) => {
-            localStorage.setItem("user", JSON.stringify(data.userDTO));
+            localStorage.setItem("user", JSON.stringify(data.user));
             return;
         },
         error: (error) => {
             addMsgToStorage(error.responseJSON.msg, "danger");
+            const isExpired = error.responseJSON.sessionExpired;
+            if (isExpired) toggleSessionModal();
             throw new Error();
         }
     });

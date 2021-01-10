@@ -8,6 +8,10 @@ const instantiateSocketServer = (server) => {
             socket.to(res.data.team).emit("update-messages", { message: res.data });
         });
 
+        socket.on("left", (res) => {
+            socket.to(res.data.team).emit("update-messages", { message: res.data });
+        });
+
         socket.on("sending-message", (res) => {
             socket.to(res.data.team).emit("update-messages", { message: res.data });
         });

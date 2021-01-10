@@ -100,7 +100,7 @@ const updateProfile = (event) => {
 
         $.ajax({
             type: "PATCH",
-            url: "/api/teams",
+            url: "/api/teams/join",
             contentType: "application/json",
             headers: {
                 "auth-token": token
@@ -117,6 +117,35 @@ const updateProfile = (event) => {
             }
         });
     };
+};
+
+const leaveTeam = () => {
+    const token = localStorage.getItem("token");
+
+    $.ajax({
+        type: "PATCH",
+        url: "/api/teams/leave",
+        contentType: "application/json",
+        headers: {
+            "auth-token": token
+        },
+        success: async (data) => {
+            addMsgToStorage(data.msg, "success");
+            $("#team-token").val("");
+            await updateLocalStorage();
+        },
+        error: (error) => {
+            addMsgToStorage(error.responseJSON.msg, "danger");
+            const isExpired = error.responseJSON.sessionExpired;
+            if (isExpired) toggleSessionModal();
+        }
+    });
+};
+
+const refreshData = async () => {
+    await updateLocalStorage();
+    addMsgToStorage("Your data has been refreshed! Reloading page...", "success");
+    setTimeout(() => window.location = "/profile", 2000);
 };
 
 const toggleDeleteAlert = () => {
