@@ -62,19 +62,19 @@ router.patch("/:id", auth, async (req, res) => {
 // @access Private & Admin only
 router.patch("/remove/:id", auth, async (req, res) => {
     try {
-        const userId = req.user._id;
-        const _id = req.params.id;
-        console.log(userId, _id);
+        const _id = req.user._id;
+        const userId = req.params.id;
+
         const creatorFilter = { createdBy: userId };
 
         const creator = await Team.findOne(creatorFilter);
 
         if (creator) return res.status(401).json({ msg: "As creator, you are not allowed to remove yourself" });
 
-        const isVerified = await isUserAdmin(userId);
+        const isVerified = await isUserAdmin(_id);
 
         if (isVerified) {
-            const filter = { _id };
+            const filter = { _id: userId };
             const update = { $set: { teamToken: "", isAdmin: false } };
 
             const user = await User.findOneAndUpdate(filter, update);

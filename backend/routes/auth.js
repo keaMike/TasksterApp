@@ -14,9 +14,12 @@ router.get("/user", auth, async (req, res) => {
         const filter = { _id };
         const fields = { firstname: 1, lastname: 1, email: 1, isAdmin: 1, teamToken: 1 };
 
+        const userDTO = user.toObject();
+        delete userDTO._id;
+
         const user = await User.findOne(filter, fields);
 
-        return res.status(200).json({ user });
+        return res.status(200).json({ user: userDTO });
     } catch (error) {
         console.log("Get user: " + error);
         return res.status(500).json({ msg: "Something went wrong... Try again later or contact us" });

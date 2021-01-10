@@ -79,7 +79,7 @@ router.post("/", auth, async (req, res) => {
 
 // @route PATCH /assign
 // @description Assign task to member
-// @access Private & Admin Only
+// @access Private
 router.patch("/assign", auth, async (req, res) => {
     try {
         const _id = req.user._id;
@@ -87,20 +87,17 @@ router.patch("/assign", auth, async (req, res) => {
 
         if (!taskId || !firstname || !lastname) return res.status(400).json({ msg: "Invalid request, try again" });
 
+        const assignedTo = userId ? userId : _id;
+
         const filter = { _id: taskId };
-        const update = { $set: { assignedTo: userId } };
+        const update = { $set: { assignedTo } };
 
-        const isVerified = await isUserAdmin(_id);
+        const task = await Task.findOneAndUpdate(filter, update);
 
-        if (isVerified) {
-            const task = await Task.findOneAndUpdate(filter, update);
+        if (!task) return res.status(400).json({ msg: "Invalid request, try again" });
 
-            if (!task) return res.status(400).json({ msg: "Invalid request, try again" });
+        return res.status(200).json({ msg: `Task was successfullly assigned to ${firstname} ${lastname}!` });
 
-            return res.status(200).json({ msg: `Task was successfullly assigned to ${firstname} ${lastname}!` });
-        } else {
-            return res.status(401).json({ msg: "You are not allowed to use this feature" });
-        };
     } catch (error) {
         console.log("Assign task: " + error);
         return res.status(500).json({ msg: "Something went wrong... Try again later or contact us" });
